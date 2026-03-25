@@ -3,7 +3,7 @@ const TelegramBot = require("node-telegram-bot-api");
 const fs = require("fs");
 
 // Bot tokeni
-const token = "8314430144:AAFFmHkSh2Q6Tndzeg7IGznnWyrSVuQiq-k";
+const token = "8519760477:AAGl_BGTVaSvFJO_XOJkcinPyifQi5_ffEc";
 if (!token) {
   console.error(
     "Ýalňyşlyk: Bot tokeni berilmedi. .env faýlynda BOT_TOKEN üýtgeşýänini düzüň."
@@ -24,14 +24,14 @@ let db = {
   users: [],
   vpnDistributedCount: 0,
   startImageId: "",
-  startMessage: "",
+  startMessage: ""
 };
 
 // Loglama funksiýalary
-const logInfo = (message) => {
+const logInfo = message => {
   console.log(
     `${new Date().toLocaleString("en-US", {
-      timeZone: "Asia/Seoul",
+      timeZone: "Asia/Seoul"
     })} - ${message}`
   );
 };
@@ -83,7 +83,7 @@ const loadDB = () => {
 db = loadDB();
 
 // Telegram API çäklendirmelerini dolandyrmak
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const apiRequestWithRetry = async (fn, retries = 5, delayMs = 2000) => {
   for (let i = 0; i < retries; i++) {
@@ -92,9 +92,8 @@ const apiRequestWithRetry = async (fn, retries = 5, delayMs = 2000) => {
     } catch (error) {
       if (error.code === 429 || error.message.includes("404 Not Found")) {
         logInfo(
-          `API ýalňyşlygy (${error.code || "404"}): ${
-            i + 1
-          }-nji synanyşyk, garaşma: ${delayMs}ms`
+          `API ýalňyşlygy (${error.code || "404"}): ${i +
+            1}-nji synanyşyk, garaşma: ${delayMs}ms`
         );
         await delay(delayMs);
         delayMs *= 2;
@@ -107,9 +106,9 @@ const apiRequestWithRetry = async (fn, retries = 5, delayMs = 2000) => {
 };
 
 // Admin statusyny barlamak
-const isMainAdmin = (userId) => db.admins.includes(userId);
-const isAssistantAdmin = (userId) => db.assistantAdmins.includes(userId);
-const isAnyAdmin = (userId) => isMainAdmin(userId) || isAssistantAdmin(userId);
+const isMainAdmin = userId => db.admins.includes(userId);
+const isAssistantAdmin = userId => db.assistantAdmins.includes(userId);
+const isAnyAdmin = userId => isMainAdmin(userId) || isAssistantAdmin(userId);
 
 // Ulanyjynyň agzalygy barlamak
 async function checkMembership(chatId) {
@@ -142,10 +141,10 @@ async function checkMembership(chatId) {
 
 // Kanallary we papkany görkezmek
 function showChannels(chatId, notMemberChannels = []) {
-  const nonFolderChannels = notMemberChannels.filter((c) =>
+  const nonFolderChannels = notMemberChannels.filter(c =>
     db.channels.includes(c)
   );
-  const folderNotMemberChannels = notMemberChannels.filter((c) =>
+  const folderNotMemberChannels = notMemberChannels.filter(c =>
     db.folderChannels.includes(c)
   );
 
@@ -155,39 +154,37 @@ function showChannels(chatId, notMemberChannels = []) {
       "Siz aşakdaky kanallara doly agza bolmadyňyz. Kanallara agza boluň we täzeden synanşyň:\n";
     if (nonFolderChannels.length > 0) {
       message +=
-        "\nKanallar:\n" + nonFolderChannels.map((c) => `${c}`).join("\n");
+        "\nKanallar:\n" + nonFolderChannels.map(c => `${c}`).join("\n");
     }
     if (folderNotMemberChannels.length > 0) {
       message +=
         "\nAddlist'daky Kanallar:\n" +
-        folderNotMemberChannels.map((c) => `${c}`).join("\n");
+        folderNotMemberChannels.map(c => `${c}`).join("\n");
     }
   }
 
   const keyboard = {
     inline_keyboard: [
       ...(nonFolderChannels.length > 0
-        ? nonFolderChannels.map((channel) => [
-            { text: `📢 Kanal`, url: `https://t.me/${channel.slice(1)}` },
+        ? nonFolderChannels.map(channel => [
+            { text: `📢 Kanal`, url: `https://t.me/${channel.slice(1)}` }
           ])
-        : db.channels.map((channel) => [
-            { text: `📢 Kanal`, url: `https://t.me/${channel.slice(1)}` },
+        : db.channels.map(channel => [
+            { text: `📢 Kanal`, url: `https://t.me/${channel.slice(1)}` }
           ])),
 
       [{ text: `📢 Premium Folder`, url: db.folderInviteLink }],
-      [{ text: `✅ Agza Boldum`, callback_data: "check_membership" }],
-    ],
+      [{ text: `✅ Agza Boldum`, callback_data: "check_membership" }]
+    ]
   };
 
-  bot
-    .sendMessage(chatId, message, { reply_markup: keyboard })
-    .catch((error) => {
-      logError(`Habary ugradyp bolmady ${chatId}`, error);
-    });
+  bot.sendMessage(chatId, message, { reply_markup: keyboard }).catch(error => {
+    logError(`Habary ugradyp bolmady ${chatId}`, error);
+  });
 }
 
 // /start komandasy
-bot.onText(/\/start/, async (msg) => {
+bot.onText(/\/start/, async msg => {
   const chatId = msg.chat.id;
   try {
     if (!db.users.includes(chatId)) {
@@ -203,7 +200,7 @@ bot.onText(/\/start/, async (msg) => {
           chatId,
           `🔒 VPN kody: \n\n<code>${db.currentVpnCode}</code>`,
           {
-            parse_mode: "HTML",
+            parse_mode: "HTML"
           }
         );
         db.vpnDistributedCount++;
@@ -219,14 +216,14 @@ bot.onText(/\/start/, async (msg) => {
     logError("/start komandasynda ýalňyşlyk", error);
     await bot
       .sendMessage(chatId, "Ýalňyşlyk ýüze çykdy. Soňra synanyşyň.")
-      .catch((err) => {
+      .catch(err => {
         logError("Ýalňyşlyk habary ugratmakda ýalňyşlyk", err);
       });
   }
 });
 
 // /admin komandasy
-bot.onText(/\/admin/, async (msg) => {
+bot.onText(/\/admin/, async msg => {
   const chatId = msg.chat.id;
   const userId = msg.from.id;
   try {
@@ -237,20 +234,20 @@ bot.onText(/\/admin/, async (msg) => {
             [
               {
                 text: "⚙️ Esasy Admin Panel",
-                callback_data: "main_admin_panel",
-              },
+                callback_data: "main_admin_panel"
+              }
             ],
             [
               {
                 text: "⚙️ Kömekçi Admin Panel",
-                callback_data: "assistant_admin_panel",
-              },
-            ],
-          ],
+                callback_data: "assistant_admin_panel"
+              }
+            ]
+          ]
         };
 
         await bot.sendMessage(chatId, "⚙️ Admin paneline hoş geldiňiz!", {
-          reply_markup: adminButtons,
+          reply_markup: adminButtons
         });
       } else if (isAssistantAdmin(userId)) {
         const adminButtons = {
@@ -258,17 +255,17 @@ bot.onText(/\/admin/, async (msg) => {
             [
               {
                 text: "⚙️ Kömekçi Admin Panel",
-                callback_data: "assistant_admin_panel",
-              },
-            ],
-          ],
+                callback_data: "assistant_admin_panel"
+              }
+            ]
+          ]
         };
 
         await bot.sendMessage(
           chatId,
           "⚙️ Kömekçi admin paneline hoş geldiňiz!",
           {
-            reply_markup: adminButtons,
+            reply_markup: adminButtons
           }
         );
       }
@@ -278,14 +275,14 @@ bot.onText(/\/admin/, async (msg) => {
     }
   } catch (error) {
     logError("/admin komandasynda ýalňyşlyk", error);
-    await bot.sendMessage(chatId, "Ýalňyşlyk ýüze çykdy.").catch((err) => {
+    await bot.sendMessage(chatId, "Ýalňyşlyk ýüze çykdy.").catch(err => {
       logError("Ýalňyşlyk habary ugratmakda ýalňyşlyk", err);
     });
   }
 });
 
 // Callback soraglary
-bot.on("callback_query", async (query) => {
+bot.on("callback_query", async query => {
   const chatId = query.message.chat.id;
   const data = query.data;
   const userId = query.from.id;
@@ -300,7 +297,7 @@ bot.on("callback_query", async (query) => {
             chatId,
             `🔒 VPN kody: \n\n<code>${db.currentVpnCode}</code>`,
             {
-              parse_mode: "HTML",
+              parse_mode: "HTML"
             }
           );
           db.vpnDistributedCount++;
@@ -345,65 +342,65 @@ bot.on("callback_query", async (query) => {
         inline_keyboard: [
           [
             { text: "🔒 VPN kody çalyşmak", callback_data: "replace_vpn" },
-            { text: "📊 Statistika", callback_data: "admin_statistika" },
+            { text: "📊 Statistika", callback_data: "admin_statistika" }
           ],
           [
             { text: "➕ Kanal goşmak", callback_data: "add_channel" },
-            { text: "➖ Kanal aýyrmak", callback_data: "remove_channel" },
+            { text: "➖ Kanal aýyrmak", callback_data: "remove_channel" }
           ],
           [
             {
               text: "➕ Addlist'a kanal goşmak",
-              callback_data: "add_folder_channel",
+              callback_data: "add_folder_channel"
             },
             {
               text: "➖ Addlist kanalyny aýyrmak",
-              callback_data: "remove_folder_channel",
-            },
+              callback_data: "remove_folder_channel"
+            }
           ],
           [
             {
               text: "🔗 Addlist Ssylka Çalsmak",
-              callback_data: "replace_folder_link",
+              callback_data: "replace_folder_link"
             },
-            { text: "📢 Bildiriş Ugratmak", callback_data: "admin_message" },
+            { text: "📢 Bildiriş Ugratmak", callback_data: "admin_message" }
           ],
 
           [
             { text: "➕ 👑 Admin Goşmak", callback_data: "add_admin" },
-            { text: "➖ 👑 Admin Aýyr", callback_data: "remove_admin" },
+            { text: "➖ 👑 Admin Aýyr", callback_data: "remove_admin" }
           ],
 
           [
             {
               text: "➕ Kömekçi Admin Goşmak",
-              callback_data: "add_assistant_admin",
+              callback_data: "add_assistant_admin"
             },
             {
               text: "➖ Kömekçi Admin Aýyr",
-              callback_data: "remove_assistant_admin",
-            },
+              callback_data: "remove_assistant_admin"
+            }
           ],
 
           [
             { text: "🖼️ Start suraty goş", callback_data: "add_start_image" },
             {
               text: "🗑️ Start suraty aýyr",
-              callback_data: "remove_start_image",
-            },
+              callback_data: "remove_start_image"
+            }
           ],
 
           [
             {
               text: "📝 Start message üýtget",
-              callback_data: "change_start_message",
-            },
-          ],
-        ],
+              callback_data: "change_start_message"
+            }
+          ]
+        ]
       };
 
       await bot.sendMessage(chatId, "⚙️ Esasy Admin Paneli:", {
-        reply_markup: mainAdminButtons,
+        reply_markup: mainAdminButtons
       });
       logInfo(`Esasy admin paneli görkezildi: ${chatId}`);
     }
@@ -413,19 +410,19 @@ bot.on("callback_query", async (query) => {
         inline_keyboard: [
           [{ text: "📊 Statistika", callback_data: "admin_statistika" }],
           [{ text: "📢 Admin Message", callback_data: "admin_message" }],
-          [{ text: "🔒 VPN kody çalyşmak", callback_data: "replace_vpn" }],
-        ],
+          [{ text: "🔒 VPN kody çalyşmak", callback_data: "replace_vpn" }]
+        ]
       };
 
       await bot.sendMessage(chatId, "⚙️ Kömekçi Admin Paneli:", {
-        reply_markup: assistantAdminButtons,
+        reply_markup: assistantAdminButtons
       });
       logInfo(`Kömekçi admin paneli görkezildi: ${chatId}`);
     }
 
     if (data === "replace_vpn" && isAnyAdmin(userId)) {
       await bot.sendMessage(chatId, "Täze VPN kodyny giriziň:");
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -435,11 +432,9 @@ bot.on("callback_query", async (query) => {
         }
         db.currentVpnCode = msg.text;
         saveDB();
-        await bot
-          .sendMessage(chatId, "🔒 VPN kody çalşyldy.")
-          .catch((error) => {
-            logError("VPN kody çalşylyş habary ugratmakda ýalňyşlyk", error);
-          });
+        await bot.sendMessage(chatId, "🔒 VPN kody çalşyldy.").catch(error => {
+          logError("VPN kody çalşylyş habary ugratmakda ýalňyşlyk", error);
+        });
       });
     }
 
@@ -448,7 +443,7 @@ bot.on("callback_query", async (query) => {
         chatId,
         "Kanalyň adyny giriziň (mysal üçin, @ChannelName):"
       );
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -460,14 +455,14 @@ bot.on("callback_query", async (query) => {
         if (!channel.startsWith("@")) {
           await bot
             .sendMessage(chatId, "Kanal ady @ bilan başlamaly.")
-            .catch((error) => {
+            .catch(error => {
               logError("Kanal goşulýan habar ugratmakda ýalňyşlyk", error);
             });
           return;
         }
         db.channels.push(channel);
         saveDB();
-        await bot.sendMessage(chatId, "➕ Kanal goşuldy.").catch((error) => {
+        await bot.sendMessage(chatId, "➕ Kanal goşuldy.").catch(error => {
           logError("Kanal goşuldy habary ugratmakda ýalňyşlyk", error);
         });
       });
@@ -476,7 +471,7 @@ bot.on("callback_query", async (query) => {
     if (data.startsWith("remove_channel_") && isMainAdmin(userId)) {
       const channel = data.replace("remove_channel_", "");
       if (db.channels.includes(channel)) {
-        db.channels = db.channels.filter((c) => c !== channel);
+        db.channels = db.channels.filter(c => c !== channel);
         saveDB();
         await bot.sendMessage(chatId, `➖ ${channel} aýyryldy.`);
       } else {
@@ -489,7 +484,7 @@ bot.on("callback_query", async (query) => {
 
     if (data === "add_folder_channel" && isMainAdmin(userId)) {
       await bot.sendMessage(chatId, "Papka üçin kanalyň adyny giriziň:");
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -501,7 +496,7 @@ bot.on("callback_query", async (query) => {
         if (!channel.startsWith("@")) {
           await bot
             .sendMessage(chatId, "Kanal ady @ bilan başlamaly.")
-            .catch((error) => {
+            .catch(error => {
               logError(
                 "Papka kanaly goşulýan habar ugratmakda ýalňyşlyk",
                 error
@@ -513,7 +508,7 @@ bot.on("callback_query", async (query) => {
         saveDB();
         await bot
           .sendMessage(chatId, "➕ Addlist kanaly goşuldy.")
-          .catch((error) => {
+          .catch(error => {
             logError("Papka kanaly goşuldy habary ugratmakda ýalňyşlyk", error);
           });
       });
@@ -522,7 +517,7 @@ bot.on("callback_query", async (query) => {
     if (data.startsWith("remove_folder_channel_") && isMainAdmin(userId)) {
       const channel = data.replace("remove_folder_channel_", "");
       if (db.folderChannels.includes(channel)) {
-        db.folderChannels = db.folderChannels.filter((c) => c !== channel);
+        db.folderChannels = db.folderChannels.filter(c => c !== channel);
         saveDB();
         await bot.sendMessage(chatId, `➖ ${channel} addlist'dan aýyryldy.`);
       } else {
@@ -540,13 +535,13 @@ bot.on("callback_query", async (query) => {
       }
 
       const channelButtons = {
-        inline_keyboard: db.channels.map((channel) => [
-          { text: `➖ ${channel}`, callback_data: `remove_channel_${channel}` },
-        ]),
+        inline_keyboard: db.channels.map(channel => [
+          { text: `➖ ${channel}`, callback_data: `remove_channel_${channel}` }
+        ])
       };
 
       await bot.sendMessage(chatId, "Haýsy kanaly aýyrmakçy:", {
-        reply_markup: channelButtons,
+        reply_markup: channelButtons
       });
       logInfo(`Kanal aýyrma paneli görkezildi: ${chatId}`);
     }
@@ -558,16 +553,16 @@ bot.on("callback_query", async (query) => {
       }
 
       const folderChannelButtons = {
-        inline_keyboard: db.folderChannels.map((channel) => [
+        inline_keyboard: db.folderChannels.map(channel => [
           {
             text: `➖ ${channel}`,
-            callback_data: `remove_folder_channel_${channel}`,
-          },
-        ]),
+            callback_data: `remove_folder_channel_${channel}`
+          }
+        ])
       };
 
       await bot.sendMessage(chatId, "Addlist'dan haýsy kanaly aýyrmakçy:", {
-        reply_markup: folderChannelButtons,
+        reply_markup: folderChannelButtons
       });
       logInfo(`Addlist kanaly aýyrma paneli görkezildi: ${chatId}`);
     }
@@ -577,7 +572,7 @@ bot.on("callback_query", async (query) => {
         chatId,
         "Täze papka çakylyk baglanyşygyny giriziň:"
       );
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -589,7 +584,7 @@ bot.on("callback_query", async (query) => {
         saveDB();
         await bot
           .sendMessage(chatId, "🔗 Papka çakylyk baglanyşygy çalşyldy.")
-          .catch((error) => {
+          .catch(error => {
             logError("Papka linki çalşylyş habary ugratmakda ýalňyşlyk", error);
           });
       });
@@ -597,7 +592,7 @@ bot.on("callback_query", async (query) => {
 
     if (data === "admin_message" && isAnyAdmin(userId)) {
       await bot.sendMessage(chatId, "Admin habaryny giriziň:");
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -637,7 +632,7 @@ bot.on("callback_query", async (query) => {
         chatId,
         "Täze adminiň Telegram ID-sini giriziň (mysal üçin, 6179312865):"
       );
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -649,7 +644,7 @@ bot.on("callback_query", async (query) => {
         if (isNaN(adminId) || adminId <= 0) {
           await bot
             .sendMessage(chatId, "Dogry Telegram ID giriziň (pozitiw san).")
-            .catch((error) => {
+            .catch(error => {
               logError("Nädip ID habary ugratmakda ýalňyşlyk", error);
             });
           return;
@@ -667,7 +662,7 @@ bot.on("callback_query", async (query) => {
           saveDB();
           await bot
             .sendMessage(chatId, `➕ ID ${adminId} admin hökmünde goşuldy.`)
-            .catch((error) => {
+            .catch(error => {
               logError("Admin goşuldy habary ugratmakda ýalňyşlyk", error);
             });
         } catch (error) {
@@ -677,7 +672,7 @@ bot.on("callback_query", async (query) => {
               chatId,
               "Girizilen ID nädogry ýa-da ulanyjy tapylmady. Täzeden synanyşyň."
             )
-            .catch((error) => {
+            .catch(error => {
               logError("Ýalňyşlyk habary ugratmakda ýalňyşlyk", error);
             });
         }
@@ -689,7 +684,7 @@ bot.on("callback_query", async (query) => {
         chatId,
         "Täze kömekçi adminiň Telegram ID-sini giriziň (mysal üçin, 610000000):"
       );
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -701,7 +696,7 @@ bot.on("callback_query", async (query) => {
         if (isNaN(adminId) || adminId <= 0) {
           await bot
             .sendMessage(chatId, "Dogry Telegram ID giriziň (pozitiw san).")
-            .catch((error) => {
+            .catch(error => {
               logError("Nädip ID habary ugratmakda ýalňyşlyk", error);
             });
           return;
@@ -722,7 +717,7 @@ bot.on("callback_query", async (query) => {
               chatId,
               `➕ ID ${adminId} kömekçi admin hökmünde goşuldy.`
             )
-            .catch((error) => {
+            .catch(error => {
               logError(
                 "Kömekçi admin goşuldy habary ugratmakda ýalňyşlyk",
                 error
@@ -735,7 +730,7 @@ bot.on("callback_query", async (query) => {
               chatId,
               "Girizilen ID nädogry ýa-da ulanyjy tapylmady. Täzeden synanyşyň."
             )
-            .catch((error) => {
+            .catch(error => {
               logError("Ýalňyşlyk habary ugratmakda ýalňyşlyk", error);
             });
         }
@@ -749,16 +744,16 @@ bot.on("callback_query", async (query) => {
       }
 
       const adminButtons = {
-        inline_keyboard: db.admins.map((adminId) => [
+        inline_keyboard: db.admins.map(adminId => [
           {
             text: `➖ Admin ${adminId}`,
-            callback_data: `remove_admin_${adminId}`,
-          },
-        ]),
+            callback_data: `remove_admin_${adminId}`
+          }
+        ])
       };
 
       await bot.sendMessage(chatId, "Haýsy admini aýyrmakçy:", {
-        reply_markup: adminButtons,
+        reply_markup: adminButtons
       });
       logInfo(`Admin aýyrma paneli görkezildi: ${chatId}`);
     }
@@ -770,7 +765,7 @@ bot.on("callback_query", async (query) => {
           await bot.sendMessage(chatId, "Iň bolmanda bir admin galan bolmaly.");
           return;
         }
-        db.admins = db.admins.filter((id) => id !== adminId);
+        db.admins = db.admins.filter(id => id !== adminId);
         saveDB();
         await bot.sendMessage(chatId, `➖ Admin ${adminId} aýyryldy.`);
       } else {
@@ -788,16 +783,16 @@ bot.on("callback_query", async (query) => {
       }
 
       const assistantAdminButtons = {
-        inline_keyboard: db.assistantAdmins.map((adminId) => [
+        inline_keyboard: db.assistantAdmins.map(adminId => [
           {
             text: `➖ Kömekçi Admin ${adminId}`,
-            callback_data: `remove_assistant_admin_${adminId}`,
-          },
-        ]),
+            callback_data: `remove_assistant_admin_${adminId}`
+          }
+        ])
       };
 
       await bot.sendMessage(chatId, "Haýsy kömekçi admini aýyrmakçy:", {
-        reply_markup: assistantAdminButtons,
+        reply_markup: assistantAdminButtons
       });
       logInfo(`Kömekçi admin aýyrma paneli görkezildi: ${chatId}`);
     }
@@ -805,7 +800,7 @@ bot.on("callback_query", async (query) => {
     if (data.startsWith("remove_assistant_admin_") && isMainAdmin(userId)) {
       const adminId = parseInt(data.replace("remove_assistant_admin_", ""));
       if (db.assistantAdmins.includes(adminId)) {
-        db.assistantAdmins = db.assistantAdmins.filter((id) => id !== adminId);
+        db.assistantAdmins = db.assistantAdmins.filter(id => id !== adminId);
         saveDB();
         await bot.sendMessage(chatId, `➖ Kömekçi Admin ${adminId} aýyryldy.`);
       } else {
@@ -818,7 +813,7 @@ bot.on("callback_query", async (query) => {
 
     if (data === "add_start_image" && isMainAdmin(userId)) {
       await bot.sendMessage(chatId, "Start üçin täze suraty ugradyň:");
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.photo) {
           await bot.sendMessage(chatId, "Diňe surat ugradyp bilersiňiz.");
           return;
@@ -828,7 +823,7 @@ bot.on("callback_query", async (query) => {
         saveDB();
         await bot
           .sendMessage(chatId, "🖼️ Start suraty goşuldy.")
-          .catch((error) => {
+          .catch(error => {
             logError("Start suraty goşuldy habary ugratmakda ýalňyşlyk", error);
           });
       });
@@ -839,14 +834,14 @@ bot.on("callback_query", async (query) => {
       saveDB();
       await bot
         .sendMessage(chatId, "🗑️ Start suraty aýyryldy.")
-        .catch((error) => {
+        .catch(error => {
           logError("Start suraty aýyryldy habary ugratmakda ýalňyşlyk", error);
         });
     }
 
     if (data === "change_start_message" && isMainAdmin(userId)) {
       await bot.sendMessage(chatId, "Start üçin täze habary giriziň:");
-      bot.once("message", async (msg) => {
+      bot.once("message", async msg => {
         if (!msg.text) {
           await bot.sendMessage(
             chatId,
@@ -858,7 +853,7 @@ bot.on("callback_query", async (query) => {
         saveDB();
         await bot
           .sendMessage(chatId, "📝 Start habary üýtgedildi.")
-          .catch((error) => {
+          .catch(error => {
             logError(
               "Start habary üýtgedildi habary ugratmakda ýalňyşlyk",
               error
@@ -870,14 +865,14 @@ bot.on("callback_query", async (query) => {
     logError("Callback soragynda ýalňyşlyk", error);
     await bot
       .sendMessage(chatId, "Ýalňyşlyk ýüze çykdy. Soňra synanyşyň.")
-      .catch((err) => {
+      .catch(err => {
         logError("Ýalňyşlyk habary ugratmakda ýalňyşlyk", err);
       });
   }
 });
 
 // Polling ýalňyşlyklary
-bot.on("polling_error", (error) => {
+bot.on("polling_error", error => {
   logError("Polling ýalňyşlygy", error);
   if (error.message.includes("404 Not Found")) {
     console.error(
@@ -889,10 +884,10 @@ bot.on("polling_error", (error) => {
 // Botyň işledigini barlamak
 bot
   .getMe()
-  .then((botInfo) => {
+  .then(botInfo => {
     logInfo(`Bot işledi: @${botInfo.username} (ID: ${botInfo.id})`);
   })
-  .catch((error) => {
+  .catch(error => {
     logError("Bot barlamasynda ýalňyşlyk", error);
     if (error.message.includes("404 Not Found")) {
       console.error("Nädip bot tokeni. @BotFather bilen täze token alyň.");

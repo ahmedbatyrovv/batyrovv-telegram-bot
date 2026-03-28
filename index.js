@@ -324,7 +324,7 @@ Happ, V2BOX, Streisand, Outline we beýleki VPN'laryň hemmesi satylýar!
         {
           reply_markup: {
             inline_keyboard: [
-              [{ text: "Contact", link: "https://t.me/ahmeddevv" }],
+              [{ text: "Contact", url: "https://t.me/ahmeddevv" }],
               [{ text: "🔙 Esasy Menýu", callback_data: "main_menu" }]
             ]
           }

@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const token = "8519760477:AAGl_BGTVaSvFJO_XOJkcinPyifQi5_ffEc";
 if (!token) {
-  console.error("❌ Bot tokeni berilmedi!");
+  console.error("❌ Bot tokeni berilmedi tazeden run edin!");
   process.exit(1);
 }
 
